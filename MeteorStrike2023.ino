@@ -1339,8 +1339,8 @@ int RunSelfTest(int curState, boolean curStateChanged) {
         RPU_SetDisplay(count, 0);
         RPU_SetDisplayBlank(count, 0x00);
       }
-      RPU_SetDisplayCredits(MACHINE_STATE_TEST_SOUNDS - curState);
-      RPU_SetDisplayBallInPlay(0, false);
+      RPU_SetDisplayCredits(0, false);
+      RPU_SetDisplayBallInPlay(MACHINE_STATE_TEST_SOUNDS - curState);
       CurrentAdjustmentByte = NULL;
       CurrentAdjustmentUL = NULL;
       CurrentAdjustmentStorageByte = 0;
@@ -1704,7 +1704,7 @@ int RunAttractMode(int curState, boolean curStateChanged) {
       AddCoin(SwitchToChuteNum(switchHit));
     }
     if (switchHit == SW_SELF_TEST_SWITCH && (CurrentTime - GetLastSelfTestChangedTime()) > 250) {
-      returnState = MACHINE_STATE_TEST_LIGHTS;
+      returnState = MACHINE_STATE_TEST_LAMPS;
       SetLastSelfTestChangedTime(CurrentTime);
     }
   }
@@ -2695,7 +2695,7 @@ int RunGamePlayMode(int curState, boolean curStateChanged) {
           }
           break;
         case SW_SELF_TEST_SWITCH:
-          returnState = MACHINE_STATE_TEST_LIGHTS;
+          returnState = MACHINE_STATE_TEST_LAMPS;
           SetLastSelfTestChangedTime(CurrentTime);
           break;
         case SW_STAND_UP:
@@ -2938,7 +2938,7 @@ int RunGamePlayMode(int curState, boolean curStateChanged) {
     while ( (switchHit = RPU_PullFirstFromSwitchStack()) != SWITCH_STACK_EMPTY ) {
       switch (switchHit) {
         case SW_SELF_TEST_SWITCH:
-          returnState = MACHINE_STATE_TEST_LIGHTS;
+          returnState = MACHINE_STATE_TEST_LAMPS;
           SetLastSelfTestChangedTime(CurrentTime);
           break;
         case SW_COIN_1:

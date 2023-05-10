@@ -42,6 +42,14 @@
 /******************************************************
  *   Defines and library variables
  */
+#if !defined(RPU_MPU_BUILD_FOR_6800) || (RPU_MPU_BUILD_FOR_6800==1)
+boolean UsesM6800Processor = true;
+#if (RPU_MPU_ARCHITECTURE>11) && (RPU_OS_HARDWARE_REV<102)
+#error "Architecture > 11 doesn't make sense with RPU_MPU_BUILD_FOR_6800=1. Set RPU_MPU_BUILD_FOR_6800 to 0 in RPU_Config.h or choose a different RPU_MPU_ARCHITECTURE"
+#endif 
+#else
+boolean UsesM6800Processor = false;
+#endif 
 
 #if (RPU_MPU_ARCHITECTURE<10) 
 
@@ -64,12 +72,6 @@
 #define DEFAULT_SOLENOID_STATE          0x9F
 #endif
 
-#if !defined(RPU_MPU_BUILD_FOR_6800) || (RPU_MPU_BUILD_FOR_6800==1)
-boolean UsesM6800Processor = true;
-#else
-boolean UsesM6800Processor = false;
-#endif 
-
 #if !defined(RPU_OS_SWITCH_DELAY_IN_MICROSECONDS) || !defined(RPU_OS_TIMING_LOOP_PADDING_IN_MICROSECONDS)
 #error "Must define RPU_OS_SWITCH_DELAY_IN_MICROSECONDS and RPU_OS_TIMING_LOOP_PADDING_IN_MICROSECONDS in RPU_Config.h"
 #endif
@@ -80,12 +82,6 @@ boolean UsesM6800Processor = false;
 #ifndef INTERRUPT_OCR1A_COUNTER
 #define INTERRUPT_OCR1A_COUNTER         16574
 #endif
-
-#if !defined(RPU_MPU_BUILD_FOR_6800) || (RPU_MPU_BUILD_FOR_6800==1)
-boolean UsesM6800Processor = true;
-#else
-boolean UsesM6800Processor = false;
-#endif 
 
 volatile byte BoardLEDs = 0;
 volatile boolean UpDownSwitch = false;
@@ -732,6 +728,11 @@ byte RPU_DataRead(int address) {
 }
 
 #elif (RPU_OS_HARDWARE_REV==100)
+
+#if defined(__AVR_ATmega328P__)
+#error "RPU_OS_HARDWARE_REV 100 requires ATMega2560, check RPU_Config.h and adjust settings"
+#endif
+
 #define RPU_VMA_PIN         4
 #define RPU_RW_PIN          5
 #define RPU_PHI2_PIN        3
@@ -884,6 +885,11 @@ void WaitClockCycle(int numCycles=1) {
 
 
 #elif (RPU_OS_HARDWARE_REV==101) || (RPU_OS_HARDWARE_REV==102)
+
+#if defined(__AVR_ATmega328P__)
+#error "RPU_OS_HARDWARE_REV >100 requires ATMega2560, check RPU_Config.h and adjust settings"
+#endif
+
 #define RPU_VMA_PIN           40
 #define RPU_RW_PIN            3
 #define RPU_PHI2_PIN          39
@@ -2914,7 +2920,9 @@ unsigned long RPU_InitializeMPUArch1(unsigned long initOptions, byte creditReset
   pinMode(13, INPUT);
   boolean switchStateClosed = digitalRead(13) ? false : true;
   boolean bootToOriginal = false;
-  if ((initOptions & RPU_CMD_BOOT_ORIGINAL) || (switchStateClosed && (initOptions&RPU_CMD_BOOT_ORIGINAL_IF_SWITCH_CLOSED))) {
+  if (  (initOptions & RPU_CMD_BOOT_ORIGINAL) || 
+        (switchStateClosed && (initOptions&RPU_CMD_BOOT_ORIGINAL_IF_SWITCH_CLOSED)) ||
+        (!switchStateClosed && (initOptions&RPU_CMD_BOOT_NEW_IF_SWITCH_CLOSED)) ) {
     bootToOriginal = true;
   }
   if ((initOptions & RPU_CMD_BOOT_NEW) || (switchStateClosed && (initOptions&RPU_CMD_BOOT_NEW_IF_SWITCH_CLOSED))) {
@@ -2987,6 +2995,7 @@ unsigned long RPU_InitializeMPUArch1(unsigned long initOptions, byte creditReset
   boolean bootToOriginal = false;
   if (  (initOptions & RPU_CMD_BOOT_ORIGINAL) || 
         (switchStateClosed && (initOptions&RPU_CMD_BOOT_ORIGINAL_IF_SWITCH_CLOSED)) ||
+        (!creditResetButtonHit && (initOptions&RPU_CMD_BOOT_NEW_IF_CREDIT_RESET)) ||
         (creditResetButtonHit && (initOptions&RPU_CMD_BOOT_ORIGINAL_IF_CREDIT_RESET)) ) {
     bootToOriginal = true;
   }
@@ -3425,6 +3434,7 @@ unsigned long RPU_InitializeMPUArch10(unsigned long initOptions, byte creditRese
   boolean bootToOriginal = false;
   if (  (initOptions & RPU_CMD_BOOT_ORIGINAL) || 
         (switchStateClosed && (initOptions&RPU_CMD_BOOT_ORIGINAL_IF_SWITCH_CLOSED)) ||
+        (!creditResetButtonHit && (initOptions&RPU_CMD_BOOT_NEW_IF_CREDIT_RESET)) ||
         (creditResetButtonHit && (initOptions&RPU_CMD_BOOT_ORIGINAL_IF_CREDIT_RESET)) ) {
     bootToOriginal = true;
   }

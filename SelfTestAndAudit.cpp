@@ -147,18 +147,29 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
       RPU_SetDisplayBlank(count, 0x00);        
     }
 
-    if (curState<=MACHINE_STATE_TEST_HISCR) {
-      RPU_SetDisplayCredits(MACHINE_STATE_TEST_BOOT-curState, true);
-      RPU_SetDisplayBallInPlay(0, false);
+#if (RPU_MPU_ARCHITECTURE<10)
+    if (curState<=MACHINE_STATE_TEST_SCORE_LEVEL_1) {
+      RPU_SetDisplayCredits(0, false);
+      RPU_SetDisplayBallInPlay(MACHINE_STATE_TEST_SOUNDS-curState);
+    } else {
+      RPU_SetDisplayCredits(0 - curState, true);
+      RPU_SetDisplayBallInPlay(0, false);      
     }
+#else
+    if (curState<=MACHINE_STATE_TEST_HISCR) {
+      //RPU_SetDisplayCredits(4, true);
+      RPU_SetDisplayBallInPlay(MACHINE_STATE_TEST_BOOT-curState, false);
+    } else {
+      RPU_SetDisplayCredits(4+curState, true);
+      RPU_SetDisplayBallInPlay(0, false);      
+    }
+#endif      
   }
 
-  if (curState==MACHINE_STATE_TEST_LIGHTS) {
+  if (curState==MACHINE_STATE_TEST_LAMPS) {
     if (curStateChanged) {
       RPU_DisableSolenoidStack();        
       RPU_SetDisableFlippers(true);
-      RPU_SetDisplayCredits(0);
-      RPU_SetDisplayBallInPlay(2);
       RPU_TurnOffAllLamps();
       for (int count=0; count<RPU_MAX_LAMPS; count++) {
         RPU_SetLampState(count, 1, 0, 500);
@@ -189,8 +200,6 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
   } else if (curState==MACHINE_STATE_TEST_DISPLAYS) {
     if (curStateChanged) {
       RPU_TurnOffAllLamps();
-      RPU_SetDisplayCredits(0);
-      RPU_SetDisplayBallInPlay(1);
       for (int count=0; count<4; count++) {
         RPU_SetDisplayBlank(count, RPU_OS_ALL_DIGITS_MASK);        
       }
@@ -212,9 +221,7 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
       LastSolTestTime = CurrentTime;
       RPU_EnableSolenoidStack(); 
       RPU_SetDisableFlippers(false);
-      RPU_SetDisplayBlank(4, 0);
-      RPU_SetDisplayCredits(0);
-      RPU_SetDisplayBallInPlay(3);
+      //RPU_SetDisplayBlank(4, 0);
       SolenoidCycle = true;
       SavedValue = 0;
       RPU_PushToSolenoidStack(SavedValue, 10);
@@ -226,7 +233,11 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
     if ((CurrentTime-LastSolTestTime)>1000) {
       if (SolenoidCycle) {
         SavedValue += 1;
+#if (RPU_MPU_ARCHITECTURE<10)
+        if (SavedValue>14) SavedValue = 0;
+#else        
         if (SavedValue>21) SavedValue = 0;
+#endif        
       }
       RPU_PushToSolenoidStack(SavedValue, 10);
       RPU_SetDisplay(0, SavedValue, true);
@@ -238,8 +249,6 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
       RPU_TurnOffAllLamps();
       RPU_DisableSolenoidStack(); 
       RPU_SetDisableFlippers(true);
-      RPU_SetDisplayCredits(0);
-      RPU_SetDisplayBallInPlay(4);
     }
 
     byte displayOutput = 0;
@@ -257,8 +266,6 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
     }
 
   } else if (curState==MACHINE_STATE_TEST_SOUNDS) {
-    RPU_SetDisplayCredits(0);
-    RPU_SetDisplayBallInPlay(5);
 #ifdef RPU_OS_USE_SB100    
     byte soundToPlay = 0x01 << (((CurrentTime-LastSelfTestChange)/750)%8);
     if (SoundPlaying!=soundToPlay) {
@@ -305,8 +312,8 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
 #endif
   } else if (curState==MACHINE_STATE_TEST_BOOT) {
     if (curStateChanged) {
-      RPU_SetDisplayCredits(0);
-      RPU_SetDisplayBallInPlay(0);
+//      RPU_SetDisplayCredits(0);
+//      RPU_SetDisplayBallInPlay(0);
       for (int count=0; count<4; count++) {
         RPU_SetDisplay(count, 8007, true);
       }
