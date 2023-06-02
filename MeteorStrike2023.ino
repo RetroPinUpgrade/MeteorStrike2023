@@ -412,6 +412,26 @@ void ReadStoredParameters() {
 }
 
 
+#ifdef RPU_OS_USE_SB300
+void InitSB300Registers() {
+  RPU_PlaySB300SquareWave(1, 0x00); // Write 0x00 to CR2 (Timer 2 off, continuous mode, 16-bit, C2 clock, CR3 set)
+  RPU_PlaySB300SquareWave(0, 0x00); // Write 0x00 to CR3 (Timer 3 off, continuous mode, 16-bit, C3 clock, not prescaled)
+  RPU_PlaySB300SquareWave(1, 0x01); // Write 0x00 to CR2 (Timer 2 off, continuous mode, 16-bit, C2 clock, CR1 set)
+  RPU_PlaySB300SquareWave(0, 0x00); // Write 0x00 to CR1 (Timer 1 off, continuous mode, 16-bit, C1 clock, timers allowed)
+}
+
+
+void PlaySB300StartupBeep() {
+  RPU_PlaySB300SquareWave(1, 0x92); // Write 0x92 to CR2 (Timer 2 on, continuous mode, 16-bit, E clock, CR3 set)
+  RPU_PlaySB300SquareWave(0, 0x92); // Write 0x92 to CR3 (Timer 3 on, continuous mode, 16-bit, E clock, not prescaled)
+  RPU_PlaySB300SquareWave(4, 0x02); // Set Timer 2 to 0x0200
+  RPU_PlaySB300SquareWave(5, 0x00); 
+  RPU_PlaySB300SquareWave(6, 0x80); // Set Timer 3 to 0x8000
+  RPU_PlaySB300SquareWave(7, 0x00);
+  RPU_PlaySB300Analog(0, 0x02);
+}
+#endif
+
 void setup() {
   if (DEBUG_MESSAGES) {
     Serial.begin(57600);
@@ -450,6 +470,12 @@ void setup() {
   StopAudio();
   CurrentTime = millis();
   PlaySoundEffect(SOUND_EFFECT_METEOR_INTRO);
+
+#ifdef RPU_OS_USE_SB300
+  InitSB300Registers();
+  PlaySB300StartupBeep();
+#endif
+  
 }
 
 byte ReadSetting(byte setting, byte defaultValue) {

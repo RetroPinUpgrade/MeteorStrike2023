@@ -55,7 +55,7 @@
 //#define RPU_OS_USE_S_AND_T
 //#define RPU_OS_USE_DASH51
 //#define RPU_OS_USE_SB100
-//#define RPU_OS_USE_SB300
+#define RPU_OS_USE_SB300
 //#define RPU_OS_USE_WAV_TRIGGER
 #define RPU_OS_DISABLE_CPC_FOR_SPACE
 #define RPU_OS_USE_WAV_TRIGGER_1p3
