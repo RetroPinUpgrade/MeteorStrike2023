@@ -116,7 +116,7 @@ byte DipSwitches[4];
 #endif
 
 
-#define SOLENOID_STACK_SIZE 150
+#define SOLENOID_STACK_SIZE 60
 #define SOLENOID_STACK_EMPTY 0xFF
 volatile byte SolenoidStackFirst;
 volatile byte SolenoidStackLast;
