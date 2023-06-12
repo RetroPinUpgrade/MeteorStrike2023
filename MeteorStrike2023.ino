@@ -36,7 +36,7 @@ SendOnlyWavTrigger wTrig;             // Our WAV Trigger object
 #endif
 
 #define METEORSTRIKE2023_MAJOR_VERSION  2021
-#define METEORSTRIKE2023_MINOR_VERSION  8
+#define METEORSTRIKE2023_MINOR_VERSION  9
 #define DEBUG_MESSAGES  0
 
 
