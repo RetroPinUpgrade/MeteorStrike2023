@@ -116,7 +116,7 @@ byte DipSwitches[4];
 #endif
 
 
-#define SOLENOID_STACK_SIZE 60
+#define SOLENOID_STACK_SIZE 150
 #define SOLENOID_STACK_EMPTY 0xFF
 volatile byte SolenoidStackFirst;
 volatile byte SolenoidStackLast;
@@ -1704,12 +1704,20 @@ void RPU_CycleAllDisplays(unsigned long curTime, byte digitNum) {
   byte displayBlank = RPU_OS_ALL_DIGITS_MASK;
 
   if (digitNum!=0) {
-    displayNumToShow = (digitNum-1)/6;
 #if (RPU_OS_NUM_DIGITS==7)
+    displayNumToShow = (digitNum-1)/7;
     displayBlank = (0x40)>>((digitNum-1)%7);
+
+#ifdef RPU_OS_USE_6_DIGIT_CREDIT_DISPLAY_WITH_7_DIGIT_DISPLAYS
+    if (displayNumToShow==4) {
+      displayBlank = (0x20)>>((digitNum-1)%6);
+    }
+#endif
+    
 #else    
+    displayNumToShow = (digitNum-1)/6;
     displayBlank = (0x20)>>((digitNum-1)%6);
-#endif    
+#endif
   }
 
   for (int count=0; count<5; count++) {
@@ -1718,7 +1726,7 @@ void RPU_CycleAllDisplays(unsigned long curTime, byte digitNum) {
       if (count==displayNumToShow) RPU_SetDisplayBlank(count, displayBlank);
       else RPU_SetDisplayBlank(count, 0);
     } else {
-      RPU_SetDisplay(count, value, true);
+      RPU_SetDisplay(count, value, false);
     }
   }
 }
@@ -2423,51 +2431,67 @@ ISR(TIMER1_COMPA_vect) {    //This is the interrupt request
   // Blank Displays
   RPU_DataWrite(ADDRESS_U10_A_CONTROL, RPU_DataRead(ADDRESS_U10_A_CONTROL) & 0xF7);
   // Set all 5 display latch strobes high
-  RPU_DataWrite(ADDRESS_U11_A, (RPU_DataRead(ADDRESS_U11_A) & 0x03) | 0x01);
+  RPU_DataWrite(ADDRESS_U11_A, (RPU_DataRead(ADDRESS_U11_A)/* & 0x03*/) | 0x01);
   RPU_DataWrite(ADDRESS_U10_A, 0x0F);
 
+  byte displayStrobeMask = 0x01;
+  byte displayDigitsMask;
+#ifdef RPU_OS_USE_7_DIGIT_DISPLAYS          
+  displayDigitsMask = (0x02<<CurrentDisplayDigit);
+#else
+  displayDigitsMask = RPU_DataRead(ADDRESS_U11_A) & 0x02;
+  displayDigitsMask |= (0x04<<CurrentDisplayDigit);
+#endif          
+      
   // Write current display digits to 5 displays
   for (int displayCount=0; displayCount<5; displayCount++) {
 
-    if (CurrentDisplayDigit<RPU_OS_NUM_DIGITS) {
-      // The BCD for this digit is in b4-b7, and the display latch strobes are in b0-b3 (and U11A:b0)
-      byte displayDataByte = ((DisplayDigits[displayCount][CurrentDisplayDigit])<<4) | 0x0F;
-      byte displayEnable = ((DisplayDigitEnable[displayCount])>>CurrentDisplayDigit)&0x01;
+    // The BCD for this digit is in b4-b7, and the display latch strobes are in b0-b3 (and U11A:b0)
+    byte displayDataByte = ((DisplayDigits[displayCount][CurrentDisplayDigit])<<4) | 0x0F;
+    byte displayEnable = ((DisplayDigitEnable[displayCount])>>CurrentDisplayDigit)&0x01;
 
-      // if this digit shouldn't be displayed, then set data lines to 0xFX so digit will be blank
-      if (!displayEnable) displayDataByte = 0xFF;
+    // if this digit shouldn't be displayed, then set data lines to 0xFX so digit will be blank
+    if (!displayEnable) displayDataByte = 0xFF;
 
-      // Set low the appropriate latch strobe bit
-      if (displayCount<4) {
-        displayDataByte &= ~(0x01<<displayCount);
-      }
-      // Write out the digit & strobe (if it's 0-3)
-      RPU_DataWrite(ADDRESS_U10_A, displayDataByte);
-      if (displayCount==4) {            
-        // Strobe #5 latch on U11A:b0
-        RPU_DataWrite(ADDRESS_U11_A, RPU_DataRead(ADDRESS_U11_A) & 0xFE);
-      }
-
-      // Need to delay a little to make sure the strobe is low for long enough
-      //WaitClockCycle(4);
-      delayMicroseconds(8);
-
-      // Put the latch strobe bits back high
-      if (displayCount<4) {
-        displayDataByte |= 0x0F;
-        RPU_DataWrite(ADDRESS_U10_A, displayDataByte);
-      } else {
-        RPU_DataWrite(ADDRESS_U11_A, RPU_DataRead(ADDRESS_U11_A) | 0x01);
-        
-        // Set proper display digit enable
-#ifdef RPU_OS_USE_7_DIGIT_DISPLAYS          
-        byte displayDigitsMask = (0x02<<CurrentDisplayDigit) | 0x01;
-#else
-        byte displayDigitsMask = (0x04<<CurrentDisplayDigit) | 0x01;
-#endif          
-        RPU_DataWrite(ADDRESS_U11_A, displayDigitsMask);
-      }
+    // Calculate which bit needs to be dropped
+    if (displayCount<4) {
+      displayDataByte &= ~(displayStrobeMask);
     }
+
+    // Write out the digit & strobe (if it's 0-3)
+    // The current number to display is the upper nibble of displayDataByte, 
+    // and the lower nibble is the strobe lines for the four score displays.
+    // The strobe for the four score displays is high here because then the strobes
+    // are NOR'd with U10:CA2 (which mutes the signals during other actions).
+    // Only one strobe is low (from the above line. 
+    RPU_DataWrite(ADDRESS_U10_A, displayDataByte);
+    if (displayCount==4) {            
+      // Strobe #5 latch on U11A:b0
+      RPU_DataWrite(ADDRESS_U11_A, displayDigitsMask & 0xFE);
+    }
+
+    // Right now the "Display Latch Strobe" is high
+
+    // Put the latch strobe bits back high (low on the port)
+    delayMicroseconds(16);
+    if (displayCount<4) {
+      displayDataByte |= 0x0F;
+      // Need to delay a little to make sure the strobe is low (high on the port) for long enough
+      RPU_DataWrite(ADDRESS_U10_A, displayDataByte);
+    } else {
+      RPU_DataWrite(ADDRESS_U11_A, displayDigitsMask | 0x01);        
+    }
+    
+    displayStrobeMask *= 2;
+  }
+
+  // While the data is being strobed, we need to enable the current digit
+  RPU_DataWrite(ADDRESS_U11_A, displayDigitsMask | 0x01);
+
+  CurrentDisplayDigit = CurrentDisplayDigit + 1;
+  if (CurrentDisplayDigit>=RPU_OS_NUM_DIGITS) {
+    CurrentDisplayDigit = 0;
+    DisplayOffCycle ^= true;
   }
 
   // Stop Blanking (current digits are all latched and ready)
@@ -2476,11 +2500,6 @@ ISR(TIMER1_COMPA_vect) {    //This is the interrupt request
   // Restore 10A from backup
   RPU_DataWrite(ADDRESS_U10_A, backupU10A);    
 
-  CurrentDisplayDigit = CurrentDisplayDigit + 1;
-  if (CurrentDisplayDigit>=RPU_OS_NUM_DIGITS) {
-    CurrentDisplayDigit = 0;
-    DisplayOffCycle ^= true;
-  }
 }
 
 void InterruptService3() {
@@ -2665,11 +2684,11 @@ void InterruptService3() {
     RPU_DataWrite(ADDRESS_U11_A, curDisplayDigitEnableByte);
 #endif    
 
-    for (int lampByteCount=0; lampByteCount<RPU_NUM_LAMP_BANKS; lampByteCount++) {
+    for (int lampByteCount=0; lampByteCount<8; lampByteCount++) {
       for (byte nibbleCount=0; nibbleCount<2; nibbleCount++) {
         
         // We skip iteration number 16 because the last position is to park the lamps
-        if (lampByteCount==(RPU_NUM_LAMP_BANKS-1) && nibbleCount) continue;
+        if (lampByteCount==(7) && nibbleCount) continue;
         
         byte lampData = 0xF0 + (lampByteCount*2) + nibbleCount;
 
@@ -2695,7 +2714,7 @@ void InterruptService3() {
 
         // Use the inhibit lines to set the actual data to the lamp SCRs 
         // (here, we don't care about the lower nibble because the address was already latched)
-        byte nibbleOffset = (nibbleCount)?16:1;
+        byte nibbleOffset = (nibbleCount)?1:16;
         byte lampOutput = (LampStates[lampByteCount] * nibbleOffset);
         // Every other time through the cycle, we OR in the dim variable
         // in order to dim those lights
@@ -2719,7 +2738,7 @@ void InterruptService3() {
 
     for (int lampByteCount=8; lampByteCount<RPU_NUM_LAMP_BANKS; lampByteCount++) {
       for (byte nibbleCount=0; nibbleCount<2; nibbleCount++) {
-        byte nibbleOffset = (nibbleCount)?16:1;
+        byte nibbleOffset = (nibbleCount)?1:16;
         byte lampOutput = (LampStates[lampByteCount] * nibbleOffset);
         // Every other time through the cycle, we OR in the dim variable
         // in order to dim those lights
