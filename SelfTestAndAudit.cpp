@@ -19,9 +19,9 @@
  */
 
 #include <Arduino.h>
-#include "SelfTestAndAudit.h"
 #include "RPU_Config.h"
 #include "RPU.h"
+#include "SelfTestAndAudit.h"
 
 #define MACHINE_STATE_ATTRACT         0
 
@@ -93,6 +93,16 @@ byte GetCPCCredits(byte cpcSelection) {
 }
 #endif
 
+#ifdef RPU_OS_USE_7_DIGIT_DISPLAYS
+#ifdef RPU_OS_USE_6_DIGIT_CREDIT_DISPLAY_WITH_7_DIGIT_DISPLAYS
+#define TOTAL_DISPLAY_DIGITS 34
+#else
+#define TOTAL_DISPLAY_DIGITS 35
+#endif
+#else
+#define TOTAL_DISPLAY_DIGITS 30
+#endif
+
 int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long CurrentTime, byte resetSwitch, byte slamSwitch) {
   byte curSwitch = RPU_PullFirstFromSwitchStack();
   int returnState = curState;
@@ -157,10 +167,10 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
     }
 #else
     if (curState<=MACHINE_STATE_TEST_HISCR) {
-      //RPU_SetDisplayCredits(4, true);
-      RPU_SetDisplayBallInPlay(MACHINE_STATE_TEST_BOOT-curState, false);
+      RPU_SetDisplayCredits(0, false);
+      RPU_SetDisplayBallInPlay(MACHINE_STATE_TEST_BOOT-curState, true);
     } else {
-      RPU_SetDisplayCredits(4+curState, true);
+      RPU_SetDisplayCredits(curState - MACHINE_STATE_TEST_BOOT, true);
       RPU_SetDisplayBallInPlay(0, false);      
     }
 #endif      
@@ -208,10 +218,15 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
     if (curSwitch==resetSwitch || resetDoubleClick) {
       if (RPU_GetUpDownSwitchState()) {
         CurValue += 1;
-        if (CurValue>30) CurValue = 0;
+        if (CurValue>TOTAL_DISPLAY_DIGITS) {
+          for (int count=0; count<4; count++) {
+            RPU_SetDisplayBlank(count, RPU_OS_ALL_DIGITS_MASK);        
+          }
+          CurValue = 0;
+        }
       } else {
         if (CurValue>0) CurValue -= 1;
-        else CurValue = 30;
+        else CurValue = TOTAL_DISPLAY_DIGITS;
       }
     }    
     RPU_CycleAllDisplays(CurrentTime, CurValue);
@@ -312,8 +327,6 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
 #endif
   } else if (curState==MACHINE_STATE_TEST_BOOT) {
     if (curStateChanged) {
-//      RPU_SetDisplayCredits(0);
-//      RPU_SetDisplayBallInPlay(0);
       for (int count=0; count<4; count++) {
         RPU_SetDisplay(count, 8007, true);
       }
@@ -322,7 +335,11 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
       returnState = MACHINE_STATE_ATTRACT;
     }
     for (int count=0; count<4; count++) {
+#ifdef RPU_OS_USE_7_DIGIT_DISPLAYS
+      RPU_SetDisplayBlank(count, ((CurrentTime/500)%2)?0x78:0x00);
+#else      
       RPU_SetDisplayBlank(count, ((CurrentTime/500)%2)?0x3C:0x00);
+#endif      
     }
   } else if (curState==MACHINE_STATE_TEST_SCORE_LEVEL_1) {
 #ifdef RPU_OS_USE_SB100    
@@ -443,7 +460,7 @@ int RunBaseSelfTest(int curState, boolean curStateChanged, unsigned long Current
       byte lastValue = (byte)SavedValue;
       if (RPU_GetUpDownSwitchState()) {
         SavedValue += 1;
-        if (SavedValue>=NUM_CPC_PAIRS) SavedValue = (NUM_CPC_PAIRS-1);
+        if (SavedValue>=NUM_CPC_PAIRS) SavedValue = 0;
       } else {
         if (SavedValue>0) SavedValue -= 1;
       }

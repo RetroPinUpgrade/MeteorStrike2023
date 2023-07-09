@@ -36,7 +36,7 @@ SendOnlyWavTrigger wTrig;             // Our WAV Trigger object
 #endif
 
 #define METEORSTRIKE2023_MAJOR_VERSION  2021
-#define METEORSTRIKE2023_MINOR_VERSION  10
+#define METEORSTRIKE2023_MINOR_VERSION  8
 #define DEBUG_MESSAGES  0
 
 
@@ -441,7 +441,7 @@ void setup() {
   RPU_SetupGameSwitches(NUM_SWITCHES_WITH_TRIGGERS, NUM_PRIORITY_SWITCHES_WITH_TRIGGERS, TriggeredSwitches);
 
   // Set up the chips and interrupts
-  RPU_InitializeMPU(RPU_CMD_BOOT_ORIGINAL | RPU_CMD_BOOT_NEW_IF_SWITCH_CLOSED);
+  RPU_InitializeMPU(RPU_CMD_BOOT_ORIGINAL | RPU_CMD_BOOT_NEW_IF_SWITCH_CLOSED | RPU_CMD_BOOT_NEW_IF_CREDIT_RESET, SW_CREDIT_RESET);
   RPU_DisableSolenoidStack();
   RPU_SetDisableFlippers(true);
 

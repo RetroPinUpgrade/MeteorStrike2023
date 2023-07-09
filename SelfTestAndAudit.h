@@ -20,6 +20,7 @@
 
 
 #ifndef SELF_TEST_H
+#define SELF_TEST_H
 
 #if (RPU_MPU_ARCHITECTURE<10)
 #define MACHINE_STATE_TEST_LAMPS          -1
@@ -61,7 +62,7 @@
 
 #ifndef RPU_OS_DISABLE_CPC_FOR_SPACE  
 #define MACHINE_STATE_ADJUST_CPC_CHUTE_1        -18
-#define MACHINE_STATE_ADJUST_CPC_CHUTE_2        -19
+#define MACHINE_STATE_ADJUST_CPC_CHUTE_2        -19 
 #define MACHINE_STATE_ADJUST_CPC_CHUTE_3        -20
 // This define is set to the last test, so the extended settings will know when to take over
 #define MACHINE_STATE_TEST_DONE           -20
