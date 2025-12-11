@@ -271,9 +271,13 @@ byte ScoreAwardReplay = 0;
 boolean HighScoreReplay = true;
 boolean MatchFeature = true;
 boolean TournamentScoring = false;
-boolean ScrollingScores = true;
 boolean AttractModeSound = false;
 
+#ifdef RPU_SIMPLIFY_DISPLAY_FOR_7VOLUTION
+boolean ScrollingScores = false;
+#else
+boolean ScrollingScores = true;
+#endif
 
 
 /*********************************************************************
@@ -394,6 +398,9 @@ void ReadStoredParameters() {
   }
 
   ScrollingScores = (ReadSetting(EEPROM_SCROLLING_SCORES_BYTE, 1)) ? true : false;
+#ifdef RPU_SIMPLIFY_DISPLAY_FOR_7VOLUTION
+  ScrollingScores = false;
+#endif
 
   ExtraBallValue = RPU_ReadULFromEEProm(EEPROM_EXTRA_BALL_SCORE_BYTE);
   if (ExtraBallValue % 1000 || ExtraBallValue > 100000) ExtraBallValue = 20000;
@@ -1074,6 +1081,17 @@ void ShowPlayerScores(byte displayToUpdate, boolean flashCurrent, boolean dashCu
               else RPU_SetDisplay(scoreCount, displayScore, true, 2);
             }
           } else if (dashCurrent) {
+#ifdef RPU_SIMPLIFY_DISPLAY_FOR_7VOLUTION
+            unsigned long dashSeed = (CurrentTime / 250)%4;
+            if (dashSeed != LastFlashOrDash) {
+              LastFlashOrDash = dashSeed;
+              if (dashSeed) {
+                RPU_SetDisplay(scoreCount, displayScore, true, 2);
+              } else {
+                RPU_SetDisplayBlank(scoreCount, 0x00);
+              }
+            }
+#else            
             unsigned long dashSeed = CurrentTime/50;
             if (dashSeed != LastFlashOrDash) {
               LastFlashOrDash = dashSeed;
@@ -1116,6 +1134,7 @@ void ShowPlayerScores(byte displayToUpdate, boolean flashCurrent, boolean dashCu
               }
 #endif              
             }
+#endif            
           } else {
             RPU_SetDisplay(scoreCount, displayScore, true, 2);          
           }
@@ -2984,8 +3003,13 @@ int RunGamePlayMode(int curState, boolean curStateChanged) {
     if (TargetAwardPhase>2) TargetAwardPhase = 0;
   }
 
-  if (!ScrollingScores && CurrentScoreOfCurrentPlayer > RPU_OS_MAX_DISPLAY_SCORE) {
-    CurrentScoreOfCurrentPlayer -= RPU_OS_MAX_DISPLAY_SCORE;
+  if (!ScrollingScores && CurrentScores[CurrentPlayer] > RPU_OS_MAX_DISPLAY_SCORE) {
+    CurrentScores[CurrentPlayer] -= (RPU_OS_MAX_DISPLAY_SCORE+1);
+    if (!TournamentScoring) {
+      AddSpecialCredit();    
+    } else {
+      RPU_PushToTimedSolenoidStack(SOL_KNOCKER, 3, CurrentTime, true);
+    }
   }
 
   if (scoreAtTop != CurrentScoreOfCurrentPlayer) {
