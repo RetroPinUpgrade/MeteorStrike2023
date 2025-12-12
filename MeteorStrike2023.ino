@@ -2724,19 +2724,27 @@ int RunGamePlayMode(int curState, boolean curStateChanged) {
           //          return MACHINE_STATE_ATTRACT;
           break;
         case SW_TILT:
-          // This should be debounced
-          if ((CurrentTime - LastTiltWarningTime) > TILT_WARNING_DEBOUNCE_TIME) {
-            LastTiltWarningTime = CurrentTime;
-            NumTiltWarnings += 1;
-            if (NumTiltWarnings > MaxTiltWarnings) {
-              RPU_DisableSolenoidStack();
-              RPU_SetDisableFlippers(true);
-              RPU_TurnOffAllLamps();
-              StopAudio();
-              PlaySoundEffect(SOUND_EFFECT_TILT);
-              RPU_SetLampState(TILT, 1);
+          // Tilt only counts if the playfield has been qualified
+          if (BallFirstSwitchHitTime) {          
+            if ((CurrentTime - LastTiltWarningTime) > TILT_WARNING_DEBOUNCE_TIME) {
+              LastTiltWarningTime = CurrentTime;
+              NumTiltWarnings += 1;
+              if (NumTiltWarnings > MaxTiltWarnings) {
+                RPU_DisableSolenoidStack();
+                RPU_SetDisableFlippers(true);
+                RPU_TurnOffAllLamps();
+                StopAudio();
+                PlaySoundEffect(SOUND_EFFECT_TILT);
+                RPU_SetLampState(TILT, 1);
+              }
+              PlaySoundEffect(SOUND_EFFECT_TILT_WARNING);
             }
-            PlaySoundEffect(SOUND_EFFECT_TILT_WARNING);
+          } else {
+            // Tilt before ball is plunged -- show a timer in ManageGameMode if desired
+            if ( CurrentTime > (LastTiltWarningTime + TILT_WARNING_DEBOUNCE_TIME) ) {
+              PlaySoundEffect(SOUND_EFFECT_TILT_WARNING);
+            }
+            LastTiltWarningTime = CurrentTime;            
           }
           break;
         case SW_SELF_TEST_SWITCH:
