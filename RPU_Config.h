@@ -52,21 +52,10 @@
 // These defines allow this configuration to eliminate some functions
 // to reduce program size
 //#define RPU_OS_USE_DIP_SWITCHES 
-//#define RPU_OS_USE_S_AND_T
-//#define RPU_OS_USE_DASH51
-//#define RPU_OS_USE_SB100
 #define RPU_OS_USE_SB300
-//#define RPU_OS_USE_WAV_TRIGGER
-#define RPU_OS_DISABLE_CPC_FOR_SPACE
 #define RPU_OS_USE_WAV_TRIGGER_1p3
-//#define RPU_OS_USE_AUX_LAMPS
 //#define RPU_OS_USE_7_DIGIT_DISPLAYS
 //#define RPU_OS_USE_6_DIGIT_CREDIT_DISPLAY_WITH_7_DIGIT_DISPLAYS
-//#define RPU_USE_EXTENDED_SWITCHES_ON_PB4
-//#define RPU_USE_EXTENDED_SWITCHES_ON_PB7
-//#define RPU_OS_USE_WTYPE_1_SOUND
-//#define RPU_OS_USE_WTYPE_2_SOUND
-//#define RPU_OS_USE_W11_SOUND
 //#define RPU_SIMPLIFY_DISPLAY_FOR_7VOLUTION
 #define RPU_STREAMLINED_IMMEDIATE_SOLENOIDS
 #define RPU_NUMBER_OF_PLAYERS_ALLOWED       4
