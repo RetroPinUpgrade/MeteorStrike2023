@@ -18,190 +18,70 @@
     See <https://www.gnu.org/licenses/>.
  */
 
+#ifndef STERN_METEOR_1979_H
+#define STERN_METEOR_1979_H
 
 // Lamp Numbers (defines for lamps)
-#define BOTTOM_LEFT_BANK_SPECIAL  0
-#define LEFT_ROCKET_7K            1
-#define LEFT_ROCKET_6K            2
-#define LEFT_ROCKET_5K            3
-#define LEFT_ROCKET_4K            4
-#define LEFT_ROCKET_3K            5
-#define LEFT_ROCKET_2K            6
-#define LEFT_ROCKET_1K            7
-#define TOP_LEFT_DROP_TARGET_SPECIAL  8  
-#define MIDDLE_ROCKET_7K          9
-#define MIDDLE_ROCKET_6K          10
-#define MIDDLE_ROCKET_5K          11
-#define MIDDLE_ROCKET_4K          12
-#define MIDDLE_ROCKET_3K          13
-#define MIDDLE_ROCKET_2K          14
-#define MIDDLE_ROCKET_1K          15
-#define MIDDLE_ROLLOVER_AND_STANDUP_SPOT  16
-#define RIGHT_ROCKET_7K           17
-#define RIGHT_ROCKET_6K           18
-#define RIGHT_ROCKET_5K           19
-#define RIGHT_ROCKET_4K           20
-#define RIGHT_ROCKET_3K           21
-#define RIGHT_ROCKET_2K           22
-#define RIGHT_ROCKET_1K           23
-#define STANDUP_TARGET_SPECIAL    24
-#define RIGHT_BANK_SPECIAL        25
-#define METEOR_WOW_R              26
-#define METEOR_WOW_O              27
-#define METEOR_WOW_E_2            28
-#define METEOR_WOW_T              29
-#define METEOR_WOW_E_1            30
-#define METEOR_WOW_M              31
-#define LEFT_ROLLOVER_AND_RIGHT_INLANE  32             
-#define RIGHT_ROLLOVER_AND_LEFT_RETURN    33
-#define METEOR_DROP_R             34 
-#define METEOR_DROP_O             35
-#define METEOR_DROP_E_2           36
-#define METEOR_DROP_T             37
-#define METEOR_DROP_E_1           38
-#define METEOR_DROP_M             39
-#define SHOOT_AGAIN                       40
-#define RIGHT_OUT_LANE_AND_1_BUMPER       41            
-#define SPINNER_6                         42
-#define SPINNER_5                         43
-#define SPINNER_4                         44
-#define SPINNER_3                         45
-#define SPINNER_2                         46
-#define SPINNER_1                         47
-#define HIGH_SCORE_TO_DATE                48       
-#define LEFT_OUT_LANE_AND_3_BUMPER        49             
-#define GAME_OVER                     50
-#define TILT                          51
-#define STANDUP_TARGET_WOW            52
-#define RIGHT_BANK_WOW                53
-#define TOP_LEFT_BANK_WOW             54
-#define BOTTOM_LEFT_BANK_WOW          55
-#define BONUS_1X                  56
-#define BONUS_2X                  57
-#define BONUS_4X                  58
-#define MATCH                     59
-
-/*
-All lamps
-
-    {321,870},
-    {176,784},
-    {292,788},
-    {292,813},
-    {292,839},
-    {292,865},
-    {292,892},
-    {292,918},
-    {292,943},
-    {191,550},
-    {323,788},
-    {323,813},
-    {323,839},
-    {323,865},
-    {323,892},
-    {323,918},
-    {323,943},
-    {264,343},
-    {351,788},
-    {351,813},
-    {351,839},
-    {351,865},
-    {351,892},
-    {351,918},
-    {351,943},
-    {457,689},
-    {556,784},
-    {508,404},
-    {479,426},
-    {449,449},
-    {416,469},
-    {388,489},
-    {355,514},
-    {225,384},
-    {302,302},
-    {481,363},
-    {451,386},
-    {420,408},
-    {390,428},
-    {359,451},
-    {327,473},
-    {369,1166},
-    {119,380},
-    {595,528},
-    {583,561},
-    {571,591},
-    {559,624},
-    {544,654},
-    {530,687},
-    {374,48},
-    {512,311},
-    {402,48},
-    {388,60},
-    {455,731},
-    {567,829},
-    {182,589},
-    {164,831},
-    {467,987},
-    {467,943},
-    {465,898},
-    {412,67}
-
-
-
-*/ 
-
-
-#define LAMP_ANIMATION_STEPS  16
-byte LampAnimations[3][LAMP_ANIMATION_STEPS][8] = {
-  {{0x00, 0x10, 0x30, 0x00, 0x00, 0x00, 0x00, 0x04},
-  {0x00, 0x30, 0x70, 0x00, 0x00, 0x00, 0x00, 0x03},
-  {0x00, 0x30, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x01},
-  {0x00, 0xF0, 0xE0, 0x00, 0x00, 0x01, 0x00, 0x00},
-  {0xE0, 0xF0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0xE0, 0x70, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x70, 0x30, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x30, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x18, 0x10, 0x00, 0x00, 0x00, 0x00, 0x80, 0x00},
-  {0x1D, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x0E, 0x19, 0x00, 0x00, 0x00, 0x00, 0x40, 0x00},
-  {0x0E, 0x1F, 0x00, 0x00, 0x80, 0x00, 0x00, 0x00},
-  {0x00, 0x1E, 0x0E, 0xFC, 0xFC, 0x00, 0x00, 0x00},
-  {0x00, 0x1C, 0x0E, 0x05, 0x00, 0x7C, 0x10, 0x00},
-  {0x00, 0x18, 0x1C, 0x00, 0x00, 0xF0, 0x10, 0x00},
-  {0x00, 0x10, 0x18, 0x02, 0x00, 0x00, 0x20, 0x00}},
-  {{0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x10, 0x38, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x38, 0x7C, 0x38, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x7C, 0x6C, 0x7C, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0xEE, 0xC6, 0xEE, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0xC6, 0x82, 0xC6, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x82, 0x00, 0x82, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x80, 0x06},
-  {0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x90, 0x07},
-  {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x01},
-  {0x00, 0x00, 0x00, 0x03, 0x00, 0x80, 0x20, 0x00},
-  {0x00, 0x00, 0x00, 0x02, 0x00, 0xC1, 0x60, 0x00},
-  {0x00, 0x01, 0x00, 0x80, 0x00, 0x61, 0x40, 0x00},
-  {0x00, 0x01, 0x00, 0xE0, 0x80, 0x38, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x70, 0xE0, 0x0C, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x1C, 0x3C, 0x04, 0x00, 0x00}},
-  {{0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00},
-  {0x80, 0x80, 0x80, 0x00, 0x00, 0x00, 0x00, 0x03},
-  {0x60, 0x60, 0x60, 0x00, 0x00, 0x00, 0x00, 0x04},
-  {0x18, 0x18, 0x18, 0x00, 0x00, 0x00, 0xA0, 0x00},
-  {0x07, 0x06, 0x06, 0x02, 0x00, 0x00, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x00},
-  {0x00, 0x00, 0x00, 0x01, 0x00, 0x80, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x60, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x00, 0x00, 0x10, 0x40, 0x00},
-  {0x00, 0x01, 0x00, 0x80, 0x00, 0x0C, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x60, 0x80, 0x00, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x18, 0x70, 0x00, 0x00, 0x00},
-  {0x00, 0x00, 0x00, 0x04, 0x0C, 0x00, 0x00, 0x00}}
-};
+#define LAMP_BOTTOM_LEFT_BANK_SPECIAL  0
+#define LAMP_LEFT_ROCKET_7K            1
+#define LAMP_LEFT_ROCKET_6K            2
+#define LAMP_LEFT_ROCKET_5K            3
+#define LAMP_LEFT_ROCKET_4K            4
+#define LAMP_LEFT_ROCKET_3K            5
+#define LAMP_LEFT_ROCKET_2K            6
+#define LAMP_LEFT_ROCKET_1K            7
+#define LAMP_TOP_LEFT_DROP_TARGET_SPECIAL  8  
+#define LAMP_MIDDLE_ROCKET_7K          9
+#define LAMP_MIDDLE_ROCKET_6K          10
+#define LAMP_MIDDLE_ROCKET_5K          11
+#define LAMP_MIDDLE_ROCKET_4K          12
+#define LAMP_MIDDLE_ROCKET_3K          13
+#define LAMP_MIDDLE_ROCKET_2K          14
+#define LAMP_MIDDLE_ROCKET_1K          15
+#define LAMP_MIDDLE_ROLLOVER_AND_STANDUP_SPOT  16
+#define LAMP_RIGHT_ROCKET_7K           17
+#define LAMP_RIGHT_ROCKET_6K           18
+#define LAMP_RIGHT_ROCKET_5K           19
+#define LAMP_RIGHT_ROCKET_4K           20
+#define LAMP_RIGHT_ROCKET_3K           21
+#define LAMP_RIGHT_ROCKET_2K           22
+#define LAMP_RIGHT_ROCKET_1K           23
+#define LAMP_STANDUP_TARGET_SPECIAL    24
+#define LAMP_RIGHT_BANK_SPECIAL        25
+#define LAMP_METEOR_WOW_R              26
+#define LAMP_METEOR_WOW_O              27
+#define LAMP_METEOR_WOW_E_2            28
+#define LAMP_METEOR_WOW_T              29
+#define LAMP_METEOR_WOW_E_1            30
+#define LAMP_METEOR_WOW_M              31
+#define LAMP_LEFT_ROLLOVER_AND_RIGHT_INLANE  32             
+#define LAMP_RIGHT_ROLLOVER_AND_LEFT_RETURN    33
+#define LAMP_METEOR_DROP_R             34 
+#define LAMP_METEOR_DROP_O             35
+#define LAMP_METEOR_DROP_E_2           36
+#define LAMP_METEOR_DROP_T             37
+#define LAMP_METEOR_DROP_E_1           38
+#define LAMP_METEOR_DROP_M             39
+#define LAMP_SHOOT_AGAIN                       40
+#define LAMP_RIGHT_OUT_LANE_AND_1_BUMPER       41            
+#define LAMP_SPINNER_6                         42
+#define LAMP_SPINNER_5                         43
+#define LAMP_SPINNER_4                         44
+#define LAMP_SPINNER_3                         45
+#define LAMP_SPINNER_2                         46
+#define LAMP_SPINNER_1                         47
+#define LAMP_HIGH_SCORE_TO_DATE                48       
+#define LAMP_LEFT_OUT_LANE_AND_3_BUMPER        49             
+#define LAMP_GAME_OVER                     50
+#define LAMP_TILT                          51
+#define LAMP_STANDUP_TARGET_WOW            52
+#define LAMP_RIGHT_BANK_WOW                53
+#define LAMP_TOP_LEFT_BANK_WOW             54
+#define LAMP_BOTTOM_LEFT_BANK_WOW          55
+#define LAMP_BONUS_1X                  56
+#define LAMP_BONUS_2X                  57
+#define LAMP_BONUS_4X                  58
+#define LAMP_MATCH                     59
 
 
 // Defines for switches
@@ -277,27 +157,5 @@ struct PlayfieldAndCabinetSwitch TriggeredSwitches[] = {
   { SW_RIGHT_SLINGSHOT, SOL_RIGHT_SLING, 4 },
 };
 
-// Defines for scorings
-#define SCORE_ORPHEUS_TARGET_WOW            50000
-#define SCORE_ORPHEUS_TARGET_NORMAL         2000
-#define SCORE_BONUS_LAMP                    1000
-#define SCORE_WIZARD_SWITCH_HIT             20000
-#define SCORE_SKILL_SHOT                    25000
-#define SCORE_SUPER_SKILL_SHOT              100000
-#define SCORE_ROLLOVER_AND_INLANE           500
-#define SCORE_OUTLANE                       1000
-#define SCORE_SPINNER_VAL_ADD_200           200
-#define SCORE_SPINNER_VAL_ADD_600           600
-#define SCORE_SPINNER_SPIN                  200
-#define SCORE_SPINNER_SUPER_SPIN            800
-#define SCORE_SPINNER_SUPER_SPIN_MULTIPLIER 4
-#define SCORE_THUMPER_BUMPER                1000
-#define SCORE_BUMPER                        500
-#define SCORE_BUMPER_BONUS                  1000
-#define SCORE_SLINGSHOT                     10
-#define SCORE_STANDUP_TARGET_UNLIT          500
-#define SCORE_DROP_TARGET_6000              6000
-#define SCORE_DROP_TARGET_2000              2000
-#define SCORE_METEOR_HIT_REWARD             8000
-#define SCORE_JACKPOT                       100000
-#define SCORE_SUPER_JACKPOT                 200000
+
+#endif
