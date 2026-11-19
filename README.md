@@ -2,7 +2,7 @@
 New rules for a classic
   
 This game runs by interfacing an Arduino into an original pinball MPU
-Instructions for the hardware interface board can be found here: [pinballrefresh.com](https://pinballrefresh.com)
+Instructions for the hardware interface board can be found here: [pinballrefresh.com](https://www.pinballrefresh.com/retro-pin-upgrade-rpu)
   
 The audio samples for the Wav Trigger board are here: [sound zip](https://drive.google.com/file/d/1gCiV7Mjw2ddW7durrnnC_SxSMiMqCriS/view?usp=sharing)  
   
